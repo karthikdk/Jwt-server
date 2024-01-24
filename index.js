@@ -18,6 +18,7 @@ const port=3111
 //user APIs
 
 app.post('/api/users/register',userController.register)
+app.post('/api/users/login',userController.login)
 
 app.listen(port, () => {
     console.log("server connected on port", port)

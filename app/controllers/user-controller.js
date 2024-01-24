@@ -36,4 +36,18 @@ userController.register=async(req,res)=>{
         res.json(error) 
      }
 }
+userController.login=(req,res)=>{
+    const {email,password}=req.body
+    User.findOne({email})
+        .then((user)=>{
+            if(user){
+              res.json(user)
+            }else{
+               res.json('no record found')
+            }
+        })
+        .catch((err)=>{
+            res.json(err)
+        })
+}
 module.exports=userController
