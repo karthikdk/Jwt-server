@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express=require('express')
 const cors=require('cors')
 const cookieParser=require('cookie-parser')
@@ -6,10 +7,13 @@ const userController = require('./app/controllers/user-controller')
 
 
 const app=express()
-
-app.use(express.json())
-app.use(cors())
 app.use(cookieParser())
+app.use(express.json())
+app.use(cors({
+    origin:['http://localhost:3000'],
+    credentials:true
+}))
+
 
 configureDb()
 
