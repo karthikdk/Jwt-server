@@ -18,12 +18,13 @@ app.use(cors({
 
 configureDb()
 
-const port=3111
+const port=process.env.port||3111
 
 //user APIs
-
 app.post('/api/users/register',userController.register)
 app.post('/api/users/login',userController.login)
+
+//protected route
 app.get('/api/users/dashboard',verifyUser,userController.dashboard)
 
 app.listen(port, () => {

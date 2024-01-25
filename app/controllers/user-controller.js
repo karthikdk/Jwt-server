@@ -2,7 +2,6 @@ const User = require("../models/user-model");
 const jwt=require('jsonwebtoken')
 const bcrypt=require('bcryptjs')
 const pick=require('lodash/pick')
-const cookieParser=require('cookie-parser')
 const validator=require('validator')
 
 const userController={}
@@ -59,9 +58,12 @@ userController.login=async(req,res)=>{
                     _id:user._id,
                     email:user.email
                 }
+
                 const accessToken=jwt.sign(tokenData,process.env.JWT_SECRET,{expiresIn:'1m'})
                 const refreshToken=jwt.sign(tokenData,process.env.JWT_REFRESH_SECRET,{expiresIn:'10m'})
                
+
+                //storing access token and refresh token in cookie
                 res.cookie('accessToken', accessToken, {maxAge: 60000})
 
                 res.cookie('refreshToken', refreshToken, 
@@ -74,7 +76,7 @@ userController.login=async(req,res)=>{
     }
 }
 
-//renew token
+//renew access token
 userController.renewToken=(req,res)=>{
     const refreshtoken=req.cookies.refreshToken
     let exist=false
@@ -98,4 +100,5 @@ userController.renewToken=(req,res)=>{
 userController.dashboard=(req,res)=>{
     return res.json({valid:true,message:'authorized'})
 }
+
 module.exports=userController
