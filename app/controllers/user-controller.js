@@ -37,30 +37,6 @@ userController.register=async(req,res)=>{
         res.json(error) 
      }
 }
-// userController.login=(req,res)=>{
-//     const {email,password}=req.body
-//     User.findOne({email})
-//         .then(user=>{
-//             if(user){
-//                 if(user.password === password){
-//                     const accessToken=jwt.sign({email:email},process.env.JWT_SECRET,{expiresIn:'1m'})
-
-//                     const refreshToken=jwt.sign({email:email},process.env.JWT_REFRESH_SECRET,{expiresIn:'10m'})
-
-//                     res.cookie('accessToken',accessToken, {maxAge: 60000})
-
-//                     res.cookie('refreshToken',refreshToken,
-//                     {maxAge: 300000, httpOnly:true, secure:true, sameSite:'strict'})
-//                     res.json('login successfull')
-//                 }
-//             }else{
-//                res.json('no record found')
-//             }
-//         })
-//         .catch((err)=>{
-//             res.json(err)
-//         })
-// }
 userController.login=async(req,res)=>{
     try {
         const body=pick(req.body,['email','password'])
@@ -83,18 +59,43 @@ userController.login=async(req,res)=>{
                     _id:user._id,
                     email:user.email
                 }
-                const accesstoken=jwt.sign(tokenData,process.env.JWT_SECRET,{expiresIn:'1m'})
+                const accessToken=jwt.sign(tokenData,process.env.JWT_SECRET,{expiresIn:'1m'})
                 const refreshToken=jwt.sign(tokenData,process.env.JWT_REFRESH_SECRET,{expiresIn:'10m'})
                
-                res.cookie('accesstoken', accesstoken, {maxAge: 60000})
+                res.cookie('accessToken', accessToken, {maxAge: 60000})
 
                 res.cookie('refreshToken', refreshToken, 
                 {maxAge: 300000, httpOnly: true, secure: true, sameSite: 'strict'})
-                res.json('login success')
+                return res.json({Login:true})
             }
         }
     } catch (error) {
         res.json(error)
     }
+}
+
+//renew token
+userController.renewToken=(req,res)=>{
+    const refreshtoken=req.cookies.refreshToken
+    let exist=false
+    if(!refreshtoken){
+        return res.json({valid:false,message:'No Refresh Token'})
+    }else{
+        jwt.verify(refreshtoken,process.env.JWT_REFRESH_SECRET,(err,decoded)=>{
+            if(err){
+                return res.json({valid:false,message:'invalid refresh token'})
+            }else{
+                const accessToken=jwt.sign({email:decoded.email},process.env.JWT_SECRET,{expiresIn:'1m'})
+                res.cookie('accessToken', accessToken, {maxAge: 60000})
+                exist=true
+            }
+        })
+    }
+    return exist
+}
+
+//protected route
+userController.dashboard=(req,res)=>{
+    return res.json({valid:true,message:'authorized'})
 }
 module.exports=userController
